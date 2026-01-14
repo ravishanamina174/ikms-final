@@ -24,7 +24,7 @@ def retrieval_tool(query: str):
         - artifact: List of Document objects with full metadata for reference
     """
     # Retrieve documents from vector store
-    docs = retrieve(query, k=4)
+    docs = retrieve(query, k=5)
 
     # Serialize chunks into formatted string (content)
     context = serialize_chunks(docs)

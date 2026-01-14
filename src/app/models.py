@@ -20,4 +20,6 @@ class QAResponse(BaseModel):
     """
 
     answer: str
+    plan: str
+    sub_questions: list[str]
     context: str

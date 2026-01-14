@@ -86,8 +86,9 @@ async def qa_endpoint(payload: QuestionRequest) -> QAResponse:
     # Return only the fields defined by QAResponse
     return QAResponse(
         answer=result.get("answer", ""),
-        context=result.get("context", ""),
-        # plan=result.get("plan", ""),
+        plan=result.get("plan", ""),
+        sub_questions=result.get("sub_questions", ""),
+        context=result.get("context", "")
     )
 
 

@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     pinecone_index_name: str
 
     # Retrieval Configuration
-    retrieval_k: int = 4
+    retrieval_k: int = 5
 
     model_config = SettingsConfigDict(
         env_file=".env",
