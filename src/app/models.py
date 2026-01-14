@@ -9,6 +9,7 @@ class QuestionRequest(BaseModel):
     """
 
     question: str
+    use_planning: bool = True
 
 
 class QAResponse(BaseModel):
@@ -20,6 +21,6 @@ class QAResponse(BaseModel):
     """
 
     answer: str
-    plan: str
-    sub_questions: list[str]
+    plan: str | None = None
+    sub_questions: list[str] | None = None
     context: str

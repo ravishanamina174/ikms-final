@@ -53,6 +53,7 @@ async def qa_endpoint(payload: QuestionRequest) -> QAResponse:
     """
 
     question = payload.question.strip()
+    use_planning: bool = payload.use_planning
     if not question:
         # Explicit validation beyond Pydantic's type checking to ensure
         # non-empty questions.
@@ -63,7 +64,7 @@ async def qa_endpoint(payload: QuestionRequest) -> QAResponse:
 
     # Delegate to the service layer which runs the multi-agent QA graph
     try:
-        result = answer_question(question)
+        result = answer_question(question, use_planning=use_planning)
     except Exception as exc:
         # If the error is an OpenAI authentication/authorization issue,
         # return a helpful placeholder response instead of a 500 so the

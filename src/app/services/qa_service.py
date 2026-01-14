@@ -10,13 +10,13 @@ from typing import Dict, Any
 from ..core.agents.graph import run_qa_flow
 
 
-def answer_question(question: str) -> Dict[str, Any]:
+def answer_question(question: str, use_planning: bool = True) -> Dict[str, Any]:
     """Run the multi-agent QA flow for a given question.
 
     Args:
         question: User's natural language question about the vector databases paper.
-
+        use_planning: Whether to use query planning (default is True).
     Returns:
         Dictionary containing at least `answer` and `context` keys.
     """
-    return run_qa_flow(question)
+    return run_qa_flow(question, use_planning=use_planning)

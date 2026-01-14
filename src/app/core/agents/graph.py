@@ -10,7 +10,7 @@ from .agents import planning_node,retrieval_node, summarization_node, verificati
 from .state import QAState
 
 
-def create_qa_graph() -> Any:
+def create_qa_graph(use_planning: bool = True) -> Any:
     """Create and compile the linear multi-agent QA graph.
 
     The graph executes in order:
@@ -29,8 +29,16 @@ def create_qa_graph() -> Any:
     builder.add_node("summarization", summarization_node)
     builder.add_node("verification", verification_node)
 
-    # Define linear flow: START -> retrieval -> summarization -> verification -> END
-    builder.add_edge(START, "planning")
+    # CONDITIONAL START routing
+    builder.add_conditional_edges(
+        START,
+        lambda _: "planning" if use_planning else "retrieval",
+        {
+            "planning": "planning",
+            "retrieval": "retrieval",
+        },
+    )
+
     builder.add_edge("planning", "retrieval")
     builder.add_edge("retrieval", "summarization")
     builder.add_edge("summarization", "verification")
@@ -40,12 +48,12 @@ def create_qa_graph() -> Any:
 
 
 @lru_cache(maxsize=1)
-def get_qa_graph() -> Any:
+def get_qa_graph(use_planning: bool = True) -> Any:
     """Get the compiled QA graph instance (singleton via LRU cache)."""
-    return create_qa_graph()
+    return create_qa_graph(use_planning=use_planning)
 
 
-def run_qa_flow(question: str) -> Dict[str, Any]:
+def run_qa_flow(question: str, use_planning: bool = True) -> Dict[str, Any]:
     """Run the complete multi-agent QA flow for a question.
 
     This is the main entry point for the QA system. It:
@@ -55,14 +63,14 @@ def run_qa_flow(question: str) -> Dict[str, Any]:
 
     Args:
         question: The user's question about the vector databases paper.
-
+        use_planning: Whether to use query planning (default is True).
     Returns:
         Dictionary with keys:
         - `answer`: Final verified answer
         - `draft_answer`: Initial draft answer from summarization agent
         - `context`: Retrieved context from vector store
     """
-    graph = get_qa_graph()
+    graph = get_qa_graph(use_planning=use_planning)
 
     initial_state: QAState = {
         "question": question,
