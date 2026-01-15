@@ -95,12 +95,14 @@ def retrieval_node(state: QAState) -> QAState:
 
         # Collect all ToolMessage contents (from retrieval_tool calls)
         tool_contents = []
+        tool_call_count = 0
         for msg in messages:
             if isinstance(msg, ToolMessage):
+                tool_call_count += 1
                 tool_contents.append(str(msg.content))
 
         context = "\n\n".join(tool_contents) if tool_contents else ""
-
+        print(f"🔢tool_call_count: {tool_call_count}")
         return {
             "context": context,
         }
