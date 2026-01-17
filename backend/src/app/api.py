@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from .models import QuestionRequest, QAResponse
 from .services.qa_service import answer_question
 import openai
-from .services.indexing_service import index_pdf_file
+from .services.indexing_service import index_pdf_bytes
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -118,18 +118,14 @@ async def index_pdf(file: UploadFile = File(...)) -> dict:
             detail="Only PDF files are supported.",
         )
 
-    upload_dir = Path("data/uploads")
-    upload_dir.mkdir(parents=True, exist_ok=True)
-
-    file_path = upload_dir / file.filename
+    # Read the uploaded PDF into memory and index without persisting
     contents = await file.read()
-    file_path.write_bytes(contents)
 
-    # Index the saved PDF
-    chunks_indexed = index_pdf_file(file_path)
+    # Use the bytes-based indexing helper which writes to an OS temp file
+    # only if required by the underlying loader, and cleans up after.
+    chunks_indexed = index_pdf_bytes(contents, file.filename)
 
     return {
         "filename": file.filename,
         "chunks_indexed": chunks_indexed,
-        "message": "PDF indexed successfully.",
     }

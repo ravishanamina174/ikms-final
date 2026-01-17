@@ -69,12 +69,21 @@ def index_documents(file_path: Path) -> int:
     Returns:
         The number of documents indexed.
     """
-    loader = PyPDFLoader(str(file_path) , mode = "single", )
+    loader = PyPDFLoader(str(file_path), mode="single")
     docs = loader.load()
 
-   
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
     texts = text_splitter.split_documents(docs)
+
+    # Attach filename metadata to each chunk so downstream consumers can
+    # report which file a chunk originated from. Preserve any existing
+    # page/page_number metadata provided by the loader.
+    filename = Path(file_path).name
+    for doc in texts:
+        try:
+            doc.metadata["filename"] = filename
+        except Exception:
+            doc.metadata = {"filename": filename}
 
     vector_store = _get_vector_store()
     vector_store.add_documents(texts)
