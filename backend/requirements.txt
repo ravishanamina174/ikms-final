@@ -10,3 +10,6 @@ uvicorn>=0.38.0
 openai>=1.4.0
 python-dotenv>=1.0.0
 gunicorn>=21.2.0
+
+# Required for FastAPI file uploads
+python-multipart>=0.0.6
