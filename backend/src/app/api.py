@@ -1,3 +1,4 @@
+from os import getenv
 from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile, status
@@ -20,13 +21,23 @@ app = FastAPI(
     version="0.1.0",
 )
 
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["http://localhost:3000"],  # frontend
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+FRONTEND_URL = getenv("FRONTEND_URL", "http://localhost:3000")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # frontend
+    allow_origins=[FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(
