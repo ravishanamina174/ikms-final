@@ -5,6 +5,8 @@ Verification) and thin node functions that LangGraph uses to invoke them.
 """
 import json
 from typing import List
+from pydantic import ValidationError
+from ...models import PlanningOutput
 
 from langchain.agents import create_agent
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
@@ -52,17 +54,28 @@ verification_agent = create_agent(
 )
 
 def planning_node(state: QAState) -> QAState:
-    
+
     question = state["question"]
+
     result = planning_agent.invoke({"messages": [HumanMessage(content=question)]})
-    output_text = result["messages"][-1].content  # Get the assistant's final message content 
-    Structured_plan = json.loads(output_text) # Parse JSON safely
+
+    output_text = result["messages"][-1].content
+
+    try:
+        parsed_json = json.loads(output_text)
+        
+        structured_plan = PlanningOutput(**parsed_json)
+
+    except json.JSONDecodeError:
+        raise ValueError(f"Planning agent returned invalid JSON:\n{output_text}")
+
+    except ValidationError as e:
+        raise ValueError(f"Planning agent failed schema validation:\n{e}")
 
     return {
-        "plan": Structured_plan["plan"],
-        "sub_questions": Structured_plan["sub_questions"]
+        "plan": structured_plan.plan,
+        "sub_questions": structured_plan.sub_questions,
     }
-
 
 
 def retrieval_node(state: QAState) -> QAState:

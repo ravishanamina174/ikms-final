@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-
+from pydantic import BaseModel,Field
+from typing import List
 
 class QuestionRequest(BaseModel):
     """Request body for the `/qa` endpoint.
@@ -24,3 +24,8 @@ class QAResponse(BaseModel):
     plan: str | None = None
     sub_questions: list[str] | None = None
     context: str
+
+
+class PlanningOutput(BaseModel):
+    plan: str = Field(..., description="Explicit natural-language search and reasoning strategy")
+    sub_questions: List[str] = Field(..., min_items=1, description="List of focused retrieval queries")
